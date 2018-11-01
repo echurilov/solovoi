@@ -11,7 +11,7 @@ const dirAssets = path.join(__dirname, 'assets');
 
 const appHtmlTitle = 'Solovoi';
 
-/**
+/*
  * Webpack Configuration
  */
 module.exports = {
