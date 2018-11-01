@@ -23,11 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(voronoi); 
 
     const ctx = canvasEl.getContext("2d");
-    // ctx.fillStyle = "#FF0000";
-    // ctx.fillRect(20, 20, 150, 100);
-    // ctx.beginPath();
-    // ctx.moveTo(0, 0);
-    // ctx.lineTo(300, 150);
-    // ctx.stroke();
     voronoi.render(ctx);
+    ctx.stroke();
 });
