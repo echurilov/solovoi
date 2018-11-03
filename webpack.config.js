@@ -1,5 +1,4 @@
 const path = require('path');
-const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -8,10 +7,6 @@ module.exports = {
         filename: "./solovoi.js"
     },
     plugins: [
-        // new webpack.DefinePlugin({
-        //     IS_DEV: IS_DEV
-        // }),
-
         new HtmlWebpackPlugin({
             template: path.join(__dirname, 'index.ejs'),
             title: 'Solovoi'
