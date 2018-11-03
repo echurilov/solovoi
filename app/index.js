@@ -14,12 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ]);
   }
   
-  const voronoi = Delaunay.from(points).voronoi([
-    0,
-    0,
-    canvasEl.width,
-    canvasEl.height
-  ]);
+  const delaunay = Delaunay.from(points)
+  const voronoi = delaunay.voronoi([0, 0, canvasEl.width, canvasEl.height]);
 
   const ctx = canvasEl.getContext("2d");
 
@@ -53,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < cellCount; i++) {
       if (voronoi.contains(i, mousePos.x, mousePos.y)) {
         fillCell(i, '#00008B', '#00FFFF')
+        console.log(i, [...delaunay.neighbors(i)])
       } else {
         fillCell(i, '#6495ED', '#00FFFF')
       };
