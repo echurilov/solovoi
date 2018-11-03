@@ -2,10 +2,10 @@ import { Delaunay } from "d3-delaunay";
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName("canvas")[0];
-  canvasEl.width = 1000;
-  canvasEl.height = 500;
+  canvasEl.width = self.innerWidth;
+  canvasEl.height = self.innerHeight;
 
-  let cellCount = 100;
+  let cellCount = canvasEl.width * canvasEl.height / 5000;
   const points = [];
   for (let i = 0; i < cellCount; i++) {
     points.push([
@@ -49,9 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   canvasEl.addEventListener('mousemove', function (e) {
-    // clearCanvas();
     let mousePos = getMousePos(canvasEl, e);
-    // console.log(Date.now());
     for (let i = 0; i < cellCount; i++) {
       if (voronoi.contains(i, mousePos.x, mousePos.y)) {
         fillCell(i, '#00008B', '#00FFFF')
@@ -59,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fillCell(i, '#6495ED', '#00FFFF')
       };
     }
-    // console.log(Date.now());
   }, false);
 
   clearCanvas();
