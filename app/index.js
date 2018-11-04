@@ -4,7 +4,7 @@ class Cell {
   constructor(i, voronoi) {
     this.id = i
     this.polygon = voronoi.cellPolygon(i);
-    this.path = new Path2D(voronoi.renderCell(this));
+    this.path = new Path2D(voronoi.renderCell(i));
     this.voronoi = voronoi;
     this.fill = {
       "red": 0,
@@ -90,6 +90,30 @@ document.addEventListener("DOMContentLoaded", () => {
     allCells.push(new Cell(i, voronoi));
   }
 
+  const cellObjs = []
+
+  for (let i = 0; i < cellCount; i++) {
+    let path = new Path2D(voronoi.renderCell(i));
+    let neighbors = [...delaunay.neighbors(i)];
+    cellObjs.push({
+      "center": i,
+      "walls": path,
+      "neighbors": neighbors,
+      fill: {
+        "red": 0,
+        "green": 128,
+        "blue": 255,
+        "alpha": 1.0
+      },
+      border: {
+        "red": 0,
+        "green": 255,
+        "blue": 255,
+        "alpha": 1.0
+      }
+    });
+  }
+
   function getMousePos(canvasEl, e) {
     let rect = canvasEl.getBoundingClientRect();
     return {
@@ -112,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function colorCell(cell, fillColor, borderColor) {
-    cell.fill = fillColor;
+    cell.fill = {...cell.fill, ...fillColor}
     cell.border = borderColor;
   }
 
@@ -134,17 +158,16 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let cell of allCells) {
         if (voronoi.contains(cell.id, mousePos.x, mousePos.y)) {
           prevHoverCell = currentHoverCell;
+          prevNeighbors = currentNeighbors;
           currentHoverCell = cell;
+          currentNeighbors = currentHoverCell.neighbors
         } else {
           otherCells.push(cell)
         };
       }
     }
-
+    
     if (currentHoverCell != prevHoverCell) {
-      prevNeighbors = currentNeighbors;
-      currentNeighbors = currentHoverCell.neighbors
-
       colorCells(prevNeighbors, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
       fillCells(prevNeighbors);
 
