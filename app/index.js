@@ -33,9 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const delaunay = Delaunay.from(points)
+
+  // function drawDelaunay() {
+  //   delaunay.render(ctx);
+  //   ctx.strokeStyle = "rgba(0, 0, 0, 1.0)"
+  //   ctx.lineWidth = 1;
+  //   ctx.stroke();
+  // }
+  // drawDelaunay();
+
   const voronoi = delaunay.voronoi([0, 0, canvasEl.width, canvasEl.height]);
 
-  function clearCanvas() {
+  function drawVoronoi() {
     voronoi.render(ctx);
     ctx.fillStyle = "rgba(0, 128, 255, 1.0)"
     ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
@@ -43,12 +52,22 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.lineWidth = 3;
     ctx.stroke();
   }
+  drawVoronoi();
 
-  function drawDelaunay() {
-    delaunay.render(ctx);
-    ctx.strokeStyle = "rgba(0, 0, 0, 1.0)"
-    ctx.lineWidth = 1;
-    ctx.stroke();
+  const allCells = [];
+  
+  for (let i = 0; i < cellCount; i++) {
+    let path = new Path2D(voronoi.renderCell(i));
+    let neighbors = [...delaunay.neighbors(i)];
+    allCells.push({
+      "center": i,
+      "walls": path,
+      "neighbors": neighbors,
+      "red": 0,
+      "green": 128,
+      "blue": 255,
+      "alpha": 1.0
+    });
   }
 
   function getMousePos(canvasEl, e) {
@@ -59,49 +78,46 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function fillCell(i, backgroundColor, borderColor) {
-    let cell = new Path2D(voronoi.renderCell(i))
+  function fillCell(cell, backgroundColor, borderColor) {
     ctx.fillStyle = `${backgroundColor}`
     ctx.strokeStyle = `${borderColor}`
-    ctx.fill(cell);
-    ctx.stroke(cell);
+    ctx.fill(cell.walls);
+    ctx.stroke(cell.walls);
   }
 
   function fillCells(cells, backgroundColor, borderColor) {
     for (let cell of cells) {
-      fillCell(cell, backgroundColor, borderColor)
+      fillCell(allCells[cell], backgroundColor, borderColor)
     }
   }
 
-  let prevHoverCell = 0;
-  let currentHoverCell = 0;
+  let prevHoverCell = allCells[0];
+  let currentHoverCell = allCells[0];
   let currentNeighbors = [];
   let prevNeighbors = [];
   let otherCells = [];
 
   canvasEl.addEventListener('mousemove', function (e) {
     let mousePos = getMousePos(canvasEl, e);
-    if (!voronoi.contains(currentHoverCell, mousePos.x, mousePos.y)) {
-      for (let i = 0; i < cellCount; i++) {
-        if (voronoi.contains(i, mousePos.x, mousePos.y)) {
+    if (!voronoi.contains(currentHoverCell.center, mousePos.x, mousePos.y)) {
+      for (let cell of allCells) {
+        if (voronoi.contains(cell.center, mousePos.x, mousePos.y)) {
           prevHoverCell = currentHoverCell;
-          currentHoverCell = i;
+          currentHoverCell = cell;
         } else {
-          otherCells.push(i)
+          otherCells.push(cell)
         };
       }
     }
+
     if (currentHoverCell != prevHoverCell) {
       prevNeighbors = currentNeighbors;
-      currentNeighbors = [...delaunay.neighbors(currentHoverCell)];
-      // console.log("previous: ", prevHoverCell, prevNeighbors);
-      // console.log("current: ", currentHoverCell, currentNeighbors);
+      currentNeighbors = currentHoverCell.neighbors
       fillCells(prevNeighbors, "rgba(0, 128, 255, 1.0)", "rgba(0, 255, 255, 1.0)");
       fillCell(prevHoverCell, "rgba(0, 128, 255, 1.0)", "rgba(0, 255, 255, 1.0)");
       fillCells(currentNeighbors, "rgba(128, 128, 255, 1.0)", "rgba(0, 255, 255, 1.0)");
       fillCell(currentHoverCell, "rgba(0, 0, 255, 1.0)", "rgba(255, 255, 255, 1.0)");
     }
-  }, false);
 
-  clearCanvas();
+  }, false);
 });
