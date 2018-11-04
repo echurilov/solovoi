@@ -1,5 +1,35 @@
 import { Delaunay } from "d3-delaunay";
 
+class Cell {
+  constructor(i, voronoi) {
+    this.id = i
+    this.polygon = voronoi.cellPolygon(i);
+    this.path = new Path2D(voronoi.renderCell(this));
+    this.voronoi = voronoi;
+    this.fill = {
+      "red": 0,
+      "green": 128,
+      "blue": 255,
+      "alpha": 1.0
+    }
+    this.border = {
+      "red": 0,
+      "green": 255,
+      "blue": 255,
+      "alpha": 1.0
+    }
+    this.neighbors = [...voronoi.delaunay.neighbors(this.id)].filter(cell => this.borders(cell));
+  };
+
+  borders(cell) {
+    let id;
+    if (cell instanceof Cell) {id = cell.id} else {id = cell};
+    // return this.polygon.some(x => this.voronoi.cellPolygon(id).includes(x));
+    return this.polygon.some(([x, y]) => this.voronoi.cellPolygon(id).some(([x_, y_]) => x == x_ && y == y_));
+  }
+}
+    
+
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName("canvas")[0];
   const ctx = canvasEl.getContext("2d");
@@ -57,25 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const allCells = [];
   
   for (let i = 0; i < cellCount; i++) {
-    let path = new Path2D(voronoi.renderCell(i));
-    let neighbors = [...delaunay.neighbors(i)];
-    allCells.push({
-      "center": i,
-      "walls": path,
-      "neighbors": neighbors,
-      fill: {
-        "red": 0,
-        "green": 128,
-        "blue": 255,
-        "alpha": 1.0
-      },
-      border: {
-        "red": 0,
-        "green": 255,
-        "blue": 255,
-        "alpha": 1.0
-      }
-    });
+    allCells.push(new Cell(i, voronoi));
   }
 
   function getMousePos(canvasEl, e) {
@@ -89,8 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function fillCell(cell) {
     ctx.fillStyle = `rgba(${cell.fill.red}, ${cell.fill.green}, ${cell.fill.blue}, ${cell.fill.alpha})`
     ctx.strokeStyle = `rgba(${cell.border.red}, ${cell.border.green}, ${cell.border.blue}, ${cell.border.alpha})`
-    ctx.fill(cell.walls);
-    ctx.stroke(cell.walls);
+    ctx.fill(cell.path);
+    ctx.stroke(cell.path);
   }
 
   function fillCells(cells) {
@@ -118,9 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   canvasEl.addEventListener('mousemove', function (e) {
     let mousePos = getMousePos(canvasEl, e);
-    if (!voronoi.contains(currentHoverCell.center, mousePos.x, mousePos.y)) {
+    if (!voronoi.contains(currentHoverCell.id, mousePos.x, mousePos.y)) {
       for (let cell of allCells) {
-        if (voronoi.contains(cell.center, mousePos.x, mousePos.y)) {
+        if (voronoi.contains(cell.id, mousePos.x, mousePos.y)) {
           prevHoverCell = currentHoverCell;
           currentHoverCell = cell;
         } else {
