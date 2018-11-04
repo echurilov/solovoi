@@ -63,10 +63,18 @@ document.addEventListener("DOMContentLoaded", () => {
       "center": i,
       "walls": path,
       "neighbors": neighbors,
-      "red": 0,
-      "green": 128,
-      "blue": 255,
-      "alpha": 1.0
+      fill: {
+        "red": 0,
+        "green": 128,
+        "blue": 255,
+        "alpha": 1.0
+      },
+      border: {
+        "red": 0,
+        "green": 255,
+        "blue": 255,
+        "alpha": 1.0
+      }
     });
   }
 
@@ -78,16 +86,27 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function fillCell(cell, backgroundColor, borderColor) {
-    ctx.fillStyle = `${backgroundColor}`
-    ctx.strokeStyle = `${borderColor}`
+  function fillCell(cell) {
+    ctx.fillStyle = `rgba(${cell.fill.red}, ${cell.fill.green}, ${cell.fill.blue}, ${cell.fill.alpha})`
+    ctx.strokeStyle = `rgba(${cell.border.red}, ${cell.border.green}, ${cell.border.blue}, ${cell.border.alpha})`
     ctx.fill(cell.walls);
     ctx.stroke(cell.walls);
   }
 
-  function fillCells(cells, backgroundColor, borderColor) {
+  function fillCells(cells) {
     for (let cell of cells) {
-      fillCell(allCells[cell], backgroundColor, borderColor)
+      fillCell(allCells[cell])
+    }
+  }
+
+  function colorCell(cell, fillColor, borderColor) {
+    cell.fill = fillColor;
+    cell.border = borderColor;
+  }
+
+  function colorCells(cells, fillColor, borderColor) {
+    for (let cell of cells) {
+      colorCell(allCells[cell], fillColor, borderColor)
     }
   }
 
@@ -113,10 +132,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentHoverCell != prevHoverCell) {
       prevNeighbors = currentNeighbors;
       currentNeighbors = currentHoverCell.neighbors
-      fillCells(prevNeighbors, "rgba(0, 128, 255, 1.0)", "rgba(0, 255, 255, 1.0)");
-      fillCell(prevHoverCell, "rgba(0, 128, 255, 1.0)", "rgba(0, 255, 255, 1.0)");
-      fillCells(currentNeighbors, "rgba(128, 128, 255, 1.0)", "rgba(0, 255, 255, 1.0)");
-      fillCell(currentHoverCell, "rgba(0, 0, 255, 1.0)", "rgba(255, 255, 255, 1.0)");
+
+      colorCells(prevNeighbors, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
+      fillCells(prevNeighbors);
+
+      colorCell(prevHoverCell, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
+      fillCell(prevHoverCell);
+
+      colorCells(currentNeighbors, { red: 128, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
+      fillCells(currentNeighbors);
+
+      colorCell(currentHoverCell, { red: 0, green: 0, blue: 255, alpha: 1.0 }, { red: 255, green: 255, blue: 255, alpha: 1.0 });
+      fillCell(currentHoverCell);
     }
 
   }, false);
