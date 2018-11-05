@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let prevNeighbors = [];
   let otherCells = [];
   let paintCell = null;
-  let button = 0;
+  let mouseButton = 0;
 
   canvasEl.addEventListener('mousemove', (e) => {
     let mousePos = getMousePos(canvasEl, e);
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }, false);
 
   canvasEl.addEventListener("mousedown", (mouse) => {
-    button = mouse.button;
+    mouseButton = mouse.button;
     paintCell = currentHoverCell;
   }, false);
 
@@ -184,9 +184,15 @@ document.addEventListener("DOMContentLoaded", () => {
     paintCell = null;
   }, false);
 
+  canvasEl.addEventListener('contextmenu', (mouse) => {
+    mouse.preventDefault();
+    mouseButton = mouse.button;
+    paintCell = currentHoverCell;
+  }, false);
+
   window.setInterval(() => {
     if (paintCell && paintCell.fill.red < 255) {
-      paintCell.fill.red += 1;
+      if (mouseButton == 0) { paintCell.fill.red += 1 } else if (mouseButton == 2) { paintCell.fill.red -= 1 };
       colorCell(paintCell, paintCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 })
       fillCell(paintCell);
     }
