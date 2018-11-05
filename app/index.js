@@ -137,10 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let prevHoverCell = allCells[0];
   let currentHoverCell = allCells[0];
-  let currentNeighbors = [];
-  let prevNeighbors = [];
-  let otherCells = [];
-  let paintCell = null;
+  let painting = false;
   let mouseButton = 0;
 
   canvasEl.addEventListener('mousemove', (e) => {
@@ -149,45 +146,30 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let cell of allCells) {
         if (voronoi.contains(cell.id, mousePos.x, mousePos.y)) {
           prevHoverCell = currentHoverCell;
-          prevNeighbors = currentNeighbors;
           currentHoverCell = cell;
-          currentNeighbors = currentHoverCell.neighbors
-        } else {
-          otherCells.push(cell)
         };
       }
     }
     
     if (currentHoverCell != prevHoverCell) {
-      // colorCells(prevNeighbors, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
-      // fillCells(prevNeighbors);
-
-      // colorCell(prevHoverCell, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
-      // fillCell(prevHoverCell);
-
-      // highlightCells(currentNeighbors, { red: 128, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
-
-      // highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
-      prevHoverCell.border.red = 0;
-      currentHoverCell.border.red = 255;
+      highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
     }
-
   }, false);
 
   canvasEl.addEventListener("mousedown", (mouse) => {
+    mouse.preventDefault();
     mouseButton = mouse.button;
-    paintCell = currentHoverCell;
-  }, false);
-
-  canvasEl.addEventListener("mouseup", () => {
-    if (paintCell) {colorCell(paintCell, paintCell.fill, { red: 0, green: 255, blue: 255, alpha: 1.0 })}
-    paintCell = null;
+    painting = true;
   }, false);
 
   canvasEl.addEventListener('contextmenu', (mouse) => {
     mouse.preventDefault();
     mouseButton = mouse.button;
-    paintCell = currentHoverCell;
+    painting = true;
+  }, false);
+
+  canvasEl.addEventListener("mouseup", () => {
+    painting = false;
   }, false);
 
   window.setInterval(() => {
@@ -198,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },0) / cell.neighbors.length)
     }
     for (let i = 0; i < rednesses.length; i++) {
-      if (allCells[i] != paintCell){
+      if (allCells[i] != currentHoverCell){
         if (allCells[i].fill.red < rednesses[i]) {
           allCells[i].fill.red += 1;
         } else if (allCells[i].fill.red > rednesses[i]) {
@@ -207,17 +189,13 @@ document.addEventListener("DOMContentLoaded", () => {
         fillCell(allCells[i]);
       }
     }
-    highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
-
-    if (paintCell && paintCell.fill.red < 255) {
-      if (mouseButton == 0) { paintCell.fill.red += 1 } else if (mouseButton == 2) { paintCell.fill.red -= 1 };
-      // colorCell(paintCell, paintCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 })
-      fillCell(paintCell);
+    
+    if (painting && currentHoverCell.fill.red < 255) {
+      if (mouseButton == 0) { currentHoverCell.fill.red += 1 } else if (mouseButton == 2) { currentHoverCell.fill.red -= 1 };
+      fillCell(currentHoverCell);
     }
-  }, 10);
 
-  // window.setInterval(() => {
-  //   fillCells(allCells);
-  // }, 10);
+    highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
+  }, 10);
 
 });
