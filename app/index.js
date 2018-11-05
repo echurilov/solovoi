@@ -77,8 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
     voronoi.render(ctx);
     ctx.fillStyle = "rgba(0, 128, 255, 1.0)"
     ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+    ctx.lineCap = 'round';
     ctx.strokeStyle = "rgba(0, 255, 255, 1.0)"
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 1;
     ctx.stroke();
   }
   drawVoronoi();
@@ -140,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let prevNeighbors = [];
   let otherCells = [];
   let paintCell = null;
+  let button = 0;
 
   canvasEl.addEventListener('mousemove', (e) => {
     let mousePos = getMousePos(canvasEl, e);
@@ -161,30 +163,56 @@ document.addEventListener("DOMContentLoaded", () => {
       // fillCells(prevNeighbors);
 
       // colorCell(prevHoverCell, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
-      fillCell(prevHoverCell);
+      // fillCell(prevHoverCell);
 
       // highlightCells(currentNeighbors, { red: 128, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
 
-      highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
+      // highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
+      prevHoverCell.border.red = 0;
+      currentHoverCell.border.red = 255;
     }
 
   }, false);
 
-  canvasEl.addEventListener("mousedown", () => {
+  canvasEl.addEventListener("mousedown", (mouse) => {
+    button = mouse.button;
     paintCell = currentHoverCell;
   }, false);
 
   canvasEl.addEventListener("mouseup", () => {
-    colorCell(paintCell, paintCell.fill, { red: 0, green: 255, blue: 255, alpha: 1.0 })
+    if (paintCell) {colorCell(paintCell, paintCell.fill, { red: 0, green: 255, blue: 255, alpha: 1.0 })}
     paintCell = null;
   }, false);
 
   window.setInterval(() => {
-    if (paintCell.fill.red < 255) {
+    if (paintCell && paintCell.fill.red < 255) {
       paintCell.fill.red += 1;
       colorCell(paintCell, paintCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 })
       fillCell(paintCell);
     }
   }, 10);
+
+  window.setInterval(() => {
+    let rednesses = [];
+    for (let cell of allCells) {
+      rednesses.push(cell.neighbors.reduce((sum, neighbor) => {
+      return sum + allCells[neighbor].fill.red
+      },0) / cell.neighbors.length)
+    }
+    for (let i = 0; i < rednesses.length; i++) {
+      if (allCells[i] != paintCell){
+        if (allCells[i].fill.red < rednesses[i]) {
+          allCells[i].fill.red += 1;
+        } else if (allCells[i].fill.red > rednesses[i]) {
+          allCells[i].fill.red -= 1;
+        }
+        fillCell(allCells[i]);
+      }
+    }
+  }, 10);
+
+  // window.setInterval(() => {
+  //   fillCells(allCells);
+  // }, 10);
 
 });
