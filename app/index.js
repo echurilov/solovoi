@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //   points.push([canvasEl.width + 100, h]);
   // }
 
-  let cellCount = points.length + (canvasEl.width * canvasEl.height / 5000);
+  let cellCount = points.length + (canvasEl.width * canvasEl.height / 2500);
 
   for (let i = points.length; i < cellCount; i++) {
     points.push([
