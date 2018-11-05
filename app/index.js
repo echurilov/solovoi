@@ -24,7 +24,6 @@ class Cell {
   borders(cell) {
     let id;
     if (cell instanceof Cell) {id = cell.id} else {id = cell};
-    // return this.polygon.some(x => this.voronoi.cellPolygon(id).includes(x));
     return this.polygon.some(([x, y]) => this.voronoi.cellPolygon(id).some(([x_, y_]) => x == x_ && y == y_));
   }
 }
@@ -90,30 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     allCells.push(new Cell(i, voronoi));
   }
 
-  const cellObjs = []
-
-  for (let i = 0; i < cellCount; i++) {
-    let path = new Path2D(voronoi.renderCell(i));
-    let neighbors = [...delaunay.neighbors(i)];
-    cellObjs.push({
-      "center": i,
-      "walls": path,
-      "neighbors": neighbors,
-      fill: {
-        "red": 0,
-        "green": 128,
-        "blue": 255,
-        "alpha": 1.0
-      },
-      border: {
-        "red": 0,
-        "green": 255,
-        "blue": 255,
-        "alpha": 1.0
-      }
-    });
-  }
-
   function getMousePos(canvasEl, e) {
     let rect = canvasEl.getBoundingClientRect();
     return {
@@ -146,13 +121,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function highlightCell(cell, fillColor, borderColor) {
+    ctx.fillStyle = `rgba(${fillColor.red}, ${fillColor.green}, ${fillColor.blue}, ${fillColor.alpha})`
+    ctx.strokeStyle = `rgba(${borderColor.red}, ${borderColor.green}, ${borderColor.blue}, ${borderColor.alpha})`
+    ctx.fill(cell.path);
+    ctx.stroke(cell.path);
+  }
+
+  function highlightCells(cells, fillColor, borderColor) {
+    for (let cell of cells) {
+      colorCell(allCells[cell], fillColor, borderColor)
+    }
+  }
+
   let prevHoverCell = allCells[0];
   let currentHoverCell = allCells[0];
   let currentNeighbors = [];
   let prevNeighbors = [];
   let otherCells = [];
+  let paintCell = null;
 
-  canvasEl.addEventListener('mousemove', function (e) {
+  canvasEl.addEventListener('mousemove', (e) => {
     let mousePos = getMousePos(canvasEl, e);
     if (!voronoi.contains(currentHoverCell.id, mousePos.x, mousePos.y)) {
       for (let cell of allCells) {
@@ -168,18 +157,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     if (currentHoverCell != prevHoverCell) {
-      colorCells(prevNeighbors, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
-      fillCells(prevNeighbors);
+      // colorCells(prevNeighbors, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
+      // fillCells(prevNeighbors);
 
-      colorCell(prevHoverCell, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
+      // colorCell(prevHoverCell, { red: 0, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
       fillCell(prevHoverCell);
 
-      colorCells(currentNeighbors, { red: 128, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
-      fillCells(currentNeighbors);
+      // highlightCells(currentNeighbors, { red: 128, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
 
-      colorCell(currentHoverCell, { red: 0, green: 0, blue: 255, alpha: 1.0 }, { red: 255, green: 255, blue: 255, alpha: 1.0 });
-      fillCell(currentHoverCell);
+      highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
     }
 
   }, false);
+
+  canvasEl.addEventListener("mousedown", () => {
+    paintCell = currentHoverCell;
+  }, false);
+
+  canvasEl.addEventListener("mouseup", () => {
+    colorCell(paintCell, paintCell.fill, { red: 0, green: 255, blue: 255, alpha: 1.0 })
+    paintCell = null;
+  }, false);
+
+  window.setInterval(() => {
+    if (paintCell.fill.red < 255) {
+      paintCell.fill.red += 1;
+      colorCell(paintCell, paintCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 })
+      fillCell(paintCell);
+    }
+  }, 10);
+
 });
