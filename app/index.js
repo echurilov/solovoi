@@ -168,8 +168,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // highlightCells(currentNeighbors, { red: 128, green: 128, blue: 255, alpha: 1.0 }, { red: 0, green: 255, blue: 255, alpha: 1.0 });
 
       // highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
-      prevHoverCell.border.red = 0;
-      currentHoverCell.border.red = 255;
+      // prevHoverCell.border.red = 0;
+      // currentHoverCell.border.red = 255;
     }
 
   }, false);
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.setInterval(() => {
     if (paintCell && paintCell.fill.red < 255) {
       if (mouseButton == 0) { paintCell.fill.red += 1 } else if (mouseButton == 2) { paintCell.fill.red -= 1 };
-      colorCell(paintCell, paintCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 })
+      // colorCell(paintCell, paintCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 })
       fillCell(paintCell);
     }
   }, 10);
@@ -213,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
           allCells[i].fill.red -= 1;
         }
         fillCell(allCells[i]);
+        // highlightCell(currentHoverCell, currentHoverCell.fill, { red: 255, green: 255, blue: 255, alpha: 1.0 });
       }
     }
   }, 10);
