@@ -27,7 +27,6 @@ class Cell {
     return this.polygon.some(([x, y]) => this.voronoi.cellPolygon(id).some(([x_, y_]) => x == x_ && y == y_));
   }
 }
-    
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName("canvas")[0];
@@ -38,21 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let points = [];
 
-  // // Set up border cells
-  // let borderDensity = 10
-
-  // points.push([-100, -100], [canvasEl.width + 100, canvasEl.height + 100])
-  // for (let w = 0; w < canvasEl.width; w += canvasEl.width / borderDensity) {
-  //   points.push([w, -100]);
-  //   points.push([w, canvasEl.height + 100]);
-  // }
-
-  // for (let h = 0; h < canvasEl.height; h += canvasEl.height / borderDensity) {
-  //   points.push([-100, h]);
-  //   points.push([canvasEl.width + 100, h]);
-  // }
-
-  let cellCount = points.length + (canvasEl.width * canvasEl.height / 2500);
+  const cellCount = points.length + (canvasEl.width * canvasEl.height / 2500);
 
   for (let i = points.length; i < cellCount; i++) {
     points.push([
@@ -62,15 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const delaunay = Delaunay.from(points)
-
-  // function drawDelaunay() {
-  //   delaunay.render(ctx);
-  //   ctx.strokeStyle = "rgba(0, 0, 0, 1.0)"
-  //   ctx.lineWidth = 1;
-  //   ctx.stroke();
-  // }
-  // drawDelaunay();
-
   const voronoi = delaunay.voronoi([0, 0, canvasEl.width, canvasEl.height]);
 
   function drawVoronoi() {
@@ -82,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.lineWidth = 1;
     ctx.stroke();
   }
+
   drawVoronoi();
 
   const allCells = [];
@@ -172,6 +149,10 @@ document.addEventListener("DOMContentLoaded", () => {
     painting = false;
   }, false);
 
+  canvasEl.addEventListener("mouseout", () => {
+    painting = false;
+  }, false);
+
   window.setInterval(() => {
     let rednesses = [];
     for (let cell of allCells) {
@@ -190,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     
-    if (painting && currentHoverCell.fill.red < 255) {
+    if (painting) {
       if (mouseButton == 0) { currentHoverCell.fill.red += 1 } else if (mouseButton == 2) { currentHoverCell.fill.red -= 1 };
       fillCell(currentHoverCell);
     }
