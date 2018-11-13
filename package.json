@@ -7,7 +7,8 @@
   "homepage": "https://github.com/echurilov/solovoi",
   "scripts": {
     "dev": "webpack-dev-server --progress --mode=development",
-    "start": "webpack --progress --mode=production -p"
+    "build": "webpack --progress --mode=production -p",
+    "start": "webpack --progress --mode=production -p  && serve ."
   },
   "repository": {
     "type": "git",
