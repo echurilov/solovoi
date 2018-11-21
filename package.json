@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "webpack-dev-server --progress --mode=development",
     "build": "webpack --progress --mode=production -p",
-    "start": "webpack --progress --mode=production -p  && serve dist/"
+    "start": "webpack --progress --mode=production -p  && serve ."
   },
   "repository": {
     "type": "git",
